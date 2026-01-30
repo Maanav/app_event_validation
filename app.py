@@ -20,7 +20,7 @@ st.markdown("""
 
 # --- PASSWORD PROTECTION (Kept from previous version) ---
 def check_password():
-    if st.secrets["APP_PASSWORD"] == "open": return True # Dev bypass
+    # if st.secrets["APP_PASSWORD"] == "open": return True # Dev bypass
     
     def password_entered():
         # if st.session_state["password"] == st.secrets["APP_PASSWORD"]:
