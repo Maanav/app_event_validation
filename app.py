@@ -24,7 +24,8 @@ def check_password():
 
     def password_entered():
         """Checks whether a password entered by the user is correct."""
-        if st.session_state["password"] == st.secrets["APP_PASSWORD"]:
+        # if st.session_state["password"] == st.secrets["APP_PASSWORD"]:
+        if st.session_state["password"] == 1729:
             st.session_state["password_correct"] = True
             del st.session_state["password"]  # Don't store password
         else:
@@ -39,7 +40,7 @@ def check_password():
     elif not st.session_state["password_correct"]:
         # Password incorrect, show input again.
         st.text_input(
-            "Enter Company Access Key", type="password", on_change=password_entered, key="password"
+            "Incorrect password, recheck and enter again", type="password", on_change=password_entered, key="password"
         )
         st.error("😕 Password incorrect")
         return False
@@ -48,7 +49,6 @@ def check_password():
         return True
 
 # --- STOP EXECUTION IF NOT LOGGED IN ---
-print(st.secrets)
 if not check_password():
     st.stop()  # Do not run any code below this line if password fails
 
