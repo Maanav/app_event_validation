@@ -30,7 +30,7 @@ def check_password():
     
     def password_entered():
         # if st.session_state["password"] == st.secrets["APP_PASSWORD"]:
-        if st.session_state["password"] ==1729:
+        if st.session_state["password"] == 1729:
             st.session_state["password_correct"] = True
             del st.session_state["password"]
         else:
@@ -125,4 +125,71 @@ if uploaded_file is not None:
         # Validation
         required_cols = {'event', 'props_feature'}
         if not required_cols.issubset(input_df.columns):
-            st.error(f"❌ CSV Error: Missing required columns. Found {list(
+            st.error(f"❌ CSV Error: Missing required columns. Found {list(input_df.columns)}, expected ['event', 'props_feature']")
+            st.stop()
+            
+        with st.expander("✅ File Validated - View Uploaded Definitions"):
+            st.dataframe(input_df.head())
+
+        if st.button("Fetch & Visualize Data", type="primary"):
+            
+            with st.spinner(f"Querying {target_table} from {start_date}..."):
+                
+                events_to_filter = input_df['event'].unique().tolist()
+                
+                # --- [REAL QUERY MODE] Uncomment below line ---
+                # result_df = run_query(target_table, start_date, events_to_filter)
+                
+                # --- [MOCK DATA MODE] Remove when live ---
+                import numpy as np
+                dates = pd.date_range(start=start_date, periods=14).tolist()
+                mock_data = []
+                for d in dates:
+                    for e in events_to_filter[:5]: 
+                        mock_data.append({
+                            'event_date': d, 
+                            'event_name': e, 
+                            'props_feature': np.random.choice(['Mobile', 'Desktop', 'Tablet']),
+                            'total_count': np.random.randint(100, 5000)
+                        })
+                result_df = pd.DataFrame(mock_data)
+                # -----------------------------------------
+
+            if not result_df.empty:
+                result_df['event_date'] = pd.to_datetime(result_df['event_date'])
+
+                # 1. DoD Line Chart
+                st.subheader("📅 Day-over-Day (DoD) Trend")
+                daily_agg = result_df.groupby('event_date')['total_count'].sum().reset_index()
+                
+                fig_line = px.line(daily_agg, x='event_date', y='total_count', markers=True, 
+                                   title="Total Volume Trend", template="plotly_white")
+                st.plotly_chart(fig_line, use_container_width=True)
+                
+                st.divider()
+                
+                # 2. Bar Graphs
+                c1, c2 = st.columns(2)
+                
+                with c1:
+                    st.subheader("By Event")
+                    event_agg = result_df.groupby('event_name')['total_count'].sum().reset_index().sort_values('total_count', ascending=False)
+                    fig_bar1 = px.bar(event_agg, x='event_name', y='total_count', color='total_count', title="Top Events")
+                    st.plotly_chart(fig_bar1, use_container_width=True)
+                    
+                with c2:
+                    st.subheader("By Feature")
+                    props_agg = result_df.groupby('props_feature')['total_count'].sum().reset_index()
+                    fig_bar2 = px.bar(props_agg, x='props_feature', y='total_count', title="Feature Split")
+                    st.plotly_chart(fig_bar2, use_container_width=True)
+
+                with st.expander("View Raw Data"):
+                    st.dataframe(result_df)
+
+            else:
+                st.warning("Query returned 0 rows.")
+
+    except Exception as e:
+        st.error(f"Processing Error: {e}")
+else:
+    st.info("👈 Please upload the definition CSV in the sidebar to begin.")
