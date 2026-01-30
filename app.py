@@ -48,6 +48,7 @@ def check_password():
         return True
 
 # --- STOP EXECUTION IF NOT LOGGED IN ---
+print(st.secrets)
 if not check_password():
     st.stop()  # Do not run any code below this line if password fails
 
