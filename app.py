@@ -97,16 +97,14 @@ with st.sidebar:
     # B. Dropdown Menu (Map user friendly names to actual table names)
     # Dictionary Key = Display Name, Value = Actual Databricks Table
     TABLE_OPTIONS = {
-        "User Activity Logs": "catalog.schema.user_activity",
-        "System Error Logs": "catalog.schema.system_errors",
-        "Transaction Data": "catalog.schema.transactions",
-        "Marketing Events": "catalog.schema.marketing_events",
-        "Feature Usage": "catalog.schema.feature_usage"
+        "Production": "catalog.schema.user_activity",
+        "Pre Prod/Testing": "catalog.schema.system_errors",
+        "FE Triggering": "catalog.schema.transactions"
     }
     selected_option = st.selectbox("2. Select Data Source", list(TABLE_OPTIONS.keys()))
     
     # C. Date Picker
-    start_date = st.date_input("3. Select Start Date", datetime.today() - timedelta(days=30))
+    start_date = st.date_input("3. Select Start Date", datetime.today() - timedelta(days=60))
 
     # Store variables for access
     target_table = TABLE_OPTIONS[selected_option]
@@ -139,21 +137,21 @@ if uploaded_file is not None:
                 events_to_filter = input_df['event'].unique().tolist()
                 
                 # --- [REAL QUERY MODE] Uncomment below line to use real Databricks ---
-                # result_df = run_query(target_table, start_date, events_to_filter)
+                result_df = run_query(target_table, start_date, events_to_filter)
                 
                 # --- [MOCK DATA MODE] Remove this block when live ---
-                import numpy as np
-                dates = pd.date_range(start=start_date, periods=14).tolist()
-                mock_data = []
-                for d in dates:
-                    for e in events_to_filter[:5]: # Use actual events from CSV
-                        mock_data.append({
-                            'event_date': d, 
-                            'event_name': e, 
-                            'props_feature': np.random.choice(['Mobile', 'Desktop', 'Tablet']),
-                            'total_count': np.random.randint(100, 5000)
-                        })
-                result_df = pd.DataFrame(mock_data)
+                # import numpy as np
+                # dates = pd.date_range(start=start_date, periods=14).tolist()
+                # mock_data = []
+                # for d in dates:
+                #     for e in events_to_filter[:5]: # Use actual events from CSV
+                #         mock_data.append({
+                #             'event_date': d, 
+                #             'event_name': e, 
+                #             'props_feature': np.random.choice(['Mobile', 'Desktop', 'Tablet']),
+                #             'total_count': np.random.randint(100, 5000)
+                #         })
+                # result_df = pd.DataFrame(mock_data)
                 # ---------------------------------------------------
 
             if not result_df.empty:
