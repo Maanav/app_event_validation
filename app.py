@@ -5,8 +5,8 @@ from databricks import sql
 import datetime
 
 # --- PAGE CONFIG ---
-st.set_page_config(page_title="Databricks Data Explorer", layout="wide")
-st.title("📊 Databricks Data Explorer")
+st.set_page_config(page_title="Events Data Explorer", layout="wide")
+st.title("📊 Events Data Explorer")
 
 # --- DATABASE CONNECTION ---
 @st.cache_resource
@@ -22,14 +22,14 @@ def get_db_connection():
 st.sidebar.header("User Inputs")
 
 # 1. File Upload
-uploaded_file = st.sidebar.file_uploader("Upload your CSV", type="csv")
+uploaded_file = st.sidebar.file_uploader("Upload your Events Schema", type="csv")
 
 # 2. Dropdown Menus
-category = st.sidebar.selectbox("Select Category", ["Sales", "Inventory", "Marketing"])
-status = st.sidebar.selectbox("Status", ["Active", "Pending", "Closed"])
+category = st.sidebar.selectbox("Select DB", ["Production", "Pre Prod"])
+# status = st.sidebar.selectbox("Status", ["Active", "Pending", "Closed"])
 
 # 3. Date Picker
-selected_date = st.sidebar.date_input("Select Date", datetime.date.today())
+selected_date = st.sidebar.date_input("Select Start Date", datetime.date.today())
 
 # --- MAIN LOGIC ---
 if uploaded_file is not None:
